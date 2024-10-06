@@ -31,6 +31,9 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     private int frameCount = 0;
     private double fps = 0;
 
+    // New variable to track the last pipe the bird passed
+    private int lastPipePassed = -1;
+
     public FlappyBird() {
         setPreferredSize(new Dimension(width, height));
         setBackground(Color.cyan);
@@ -46,6 +49,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         pipes.clear();
         score = 0;
         gameOver = false;
+        lastPipePassed = -1;
         addPipe();
         timer.start();
         lastUpdateTime = System.currentTimeMillis();
@@ -90,6 +94,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
             g.drawString("Bird Y: " + birdY, width - 100, 40);
             g.drawString("Bird Velocity: " + birdVelocity, width - 100, 60);
             g.drawString("Pipes: " + pipes.size(), width - 100, 80);
+            g.drawString("Last Pipe Passed: " + lastPipePassed, width - 100, 100);
         }
     }
 
@@ -106,17 +111,24 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
             birdVelocity += gravity;
             birdY += birdVelocity;
 
-            // Move pipes
-            for (int i = 0; i < pipes.size(); i++) {
-                Rectangle pipe = pipes.get(i);
-                pipe.x -= pipeVelocity;
+            // Move pipes and update score
+            for (int i = 0; i < pipes.size(); i += 2) {
+                Rectangle topPipe = pipes.get(i);
+                Rectangle bottomPipe = pipes.get(i + 1);
+                topPipe.x -= pipeVelocity;
+                bottomPipe.x -= pipeVelocity;
 
-                if (pipe.x + pipe.width < 0) {
+                // Update score when passing a pipe
+                if (topPipe.x + topPipe.width < birdX && i > lastPipePassed) {
+                    score++;
+                    lastPipePassed = i;
+                }
+
+                // Remove pipes that are off the screen
+                if (topPipe.x + topPipe.width < 0) {
                     pipes.remove(i);
-                    i--;
-                    if (i % 2 == 0) {
-                        score++;
-                    }
+                    pipes.remove(i);
+                    i -= 2;
                 }
             }
 
