@@ -31,8 +31,8 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     private int frameCount = 0;
     private double fps = 0;
 
-    // New variable to track the last pipe the bird passed
-    private int lastPipePassed = -1;
+    // New variable to track scored pipes
+    private ArrayList<Integer> scoredPipes = new ArrayList<>();
 
     public FlappyBird() {
         setPreferredSize(new Dimension(width, height));
@@ -47,9 +47,9 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         birdY = height / 2;
         birdVelocity = 0;
         pipes.clear();
+        scoredPipes.clear();
         score = 0;
         gameOver = false;
-        lastPipePassed = -1;
         addPipe();
         timer.start();
         lastUpdateTime = System.currentTimeMillis();
@@ -94,7 +94,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
             g.drawString("Bird Y: " + birdY, width - 100, 40);
             g.drawString("Bird Velocity: " + birdVelocity, width - 100, 60);
             g.drawString("Pipes: " + pipes.size(), width - 100, 80);
-            g.drawString("Last Pipe Passed: " + lastPipePassed, width - 100, 100);
+            g.drawString("Scored Pipes: " + scoredPipes.size(), width - 100, 100);
         }
     }
 
@@ -119,15 +119,16 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
                 bottomPipe.x -= pipeVelocity;
 
                 // Update score when passing a pipe
-                if (topPipe.x + topPipe.width < birdX && i > lastPipePassed) {
+                if (topPipe.x + topPipe.width < birdX && !scoredPipes.contains(i)) {
                     score++;
-                    lastPipePassed = i;
+                    scoredPipes.add(i);
                 }
 
                 // Remove pipes that are off the screen
                 if (topPipe.x + topPipe.width < 0) {
                     pipes.remove(i);
                     pipes.remove(i);
+                    scoredPipes.remove(Integer.valueOf(i));
                     i -= 2;
                 }
             }
