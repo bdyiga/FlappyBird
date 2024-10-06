@@ -5,58 +5,75 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class FlappyBird extends JPanel implements ActionListener, KeyListener {
+    // Game window dimensions
     private int width = 800;
     private int height = 600;
+
+    // Game timer
     private Timer timer;
-    private int delay = 20;
+    private int delay = 20; // 20ms delay (50 FPS)
 
+    // Bird properties
     private int birdY = height / 2;
-    private int birdX = width / 5;
-    private int birdSize = 20;
+    private final int birdX = width / 5;
+    private final int birdSize = 20;
     private int birdVelocity = 0;
-    private int gravity = 1;
+    private final int gravity = 1;
 
+    // Pipe properties
     private ArrayList<Rectangle> pipes = new ArrayList<>();
-    private int pipeWidth = 50;
-    private int pipeGap = 200;
-    private int pipeVelocity = 3;
+    private final int pipeWidth = 50;
+    private final int pipeGap = 200;
+    private final int pipeVelocity = 3;
 
+    // Game state
     private int score = 0;
     private boolean gameOver = false;
     private Random random = new Random();
 
-    // Debugging variables
+    // Debugging properties
     private boolean debugMode = true;
     private long lastUpdateTime = 0;
     private int frameCount = 0;
     private double fps = 0;
 
-    // New variable to track scored pipes
+    // Scoring system
     private ArrayList<Integer> scoredPipes = new ArrayList<>();
 
     public FlappyBird() {
+        // Set up the game panel
         setPreferredSize(new Dimension(width, height));
         setBackground(Color.cyan);
+        
+        // Initialize the game timer
         timer = new Timer(delay, this);
+        
+        // Set up keyboard input
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
     }
 
     public void startGame() {
+        // Reset game state
         birdY = height / 2;
         birdVelocity = 0;
         pipes.clear();
         scoredPipes.clear();
         score = 0;
         gameOver = false;
+        
+        // Add the first pipe and start the game timer
         addPipe();
         timer.start();
         lastUpdateTime = System.currentTimeMillis();
     }
 
     public void addPipe() {
+        // Generate a random height for the pipe
         int pipeHeight = 100 + random.nextInt(height - pipeGap - 200);
+        
+        // Add top and bottom pipes
         pipes.add(new Rectangle(width, height - pipeHeight, pipeWidth, pipeHeight));
         pipes.add(new Rectangle(width, 0, pipeWidth, height - pipeHeight - pipeGap));
     }
@@ -79,6 +96,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         g.setFont(new Font("Arial", Font.BOLD, 20));
         g.drawString("Score: " + score, 10, 30);
 
+        // Draw game over message
         if (gameOver) {
             g.setColor(Color.RED);
             g.setFont(new Font("Arial", Font.BOLD, 40));
@@ -87,6 +105,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
             g.drawString("Press SPACE to restart", width / 2 - 100, height / 2 + 40);
         }
 
+        // Draw debug information
         if (debugMode) {
             g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -99,6 +118,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     }
 
     public void actionPerformed(ActionEvent e) {
+        // Calculate FPS
         frameCount++;
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdateTime >= 1000) {
@@ -108,6 +128,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         }
 
         if (!gameOver) {
+            // Update bird position
             birdVelocity += gravity;
             birdY += birdVelocity;
 
@@ -115,12 +136,14 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
             for (int i = 0; i < pipes.size(); i += 2) {
                 Rectangle topPipe = pipes.get(i);
                 Rectangle bottomPipe = pipes.get(i + 1);
+                
+                // Move pipes to the left
                 topPipe.x -= pipeVelocity;
                 bottomPipe.x -= pipeVelocity;
 
                 // Update score when passing a pipe
                 if (topPipe.x + topPipe.width < birdX && !scoredPipes.contains(i)) {
-                    score++;
+                    score += 100; // Increment score by 100 points
                     scoredPipes.add(i);
                 }
 
@@ -133,7 +156,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
                 }
             }
 
-            // Add new pipes
+            // Add new pipes when necessary
             if (pipes.isEmpty() || pipes.get(pipes.size() - 1).x < width - 300) {
                 addPipe();
             }
@@ -152,25 +175,28 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
             }
         }
 
+        // Repaint the game panel
         repaint();
     }
 
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             if (gameOver) {
-                startGame();
+                startGame(); // Restart the game if it's over
             } else {
-                birdVelocity = -10;
+                birdVelocity = -10; // Make the bird jump
             }
         } else if (e.getKeyCode() == KeyEvent.VK_D) {
-            debugMode = !debugMode;
+            debugMode = !debugMode; // Toggle debug mode
         }
     }
 
+    // Unused KeyListener methods
     public void keyTyped(KeyEvent e) {}
     public void keyReleased(KeyEvent e) {}
 
     public static void main(String[] args) {
+        // Set up the game window
         JFrame frame = new JFrame("Flappy Bird");
         FlappyBird game = new FlappyBird();
         frame.add(game);
