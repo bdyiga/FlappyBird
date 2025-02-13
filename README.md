@@ -1,6 +1,7 @@
 
 # Flappy Bird-style Game Design Document
 
+
 ## 1. Game Overview
 
 ### 1.1 Concept
