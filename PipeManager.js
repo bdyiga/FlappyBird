@@ -12,6 +12,7 @@ export default class PipeManager {
         this.pipeSpeed = CONFIG.PIPE_SPEED;
         this.minPipeHeight = 100; // Minimum height for pipes
     }
+    
 
     reset() {
         this.pipes = [];
